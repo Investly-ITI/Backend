@@ -21,4 +21,8 @@
     <ProjectReference Include="..\Investly.DAL\Investly.DAL.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="NewFolder\" />
+  </ItemGroup>
+
 </Project>

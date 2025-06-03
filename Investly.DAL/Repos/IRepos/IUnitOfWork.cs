@@ -15,5 +15,9 @@ namespace Investly.DAL.Repos.IRepos
         public IFounderRepo FounderRepo { get; }
         public int Save();
         public void Dispose();
+
+        public IInvestorContactRequestRepo InvestorContactRequestRepo { get; }
+
+
     }
 }
