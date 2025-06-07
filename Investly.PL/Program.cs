@@ -78,6 +78,7 @@ namespace Investly.PL
             builder.Services.AddScoped<IFounderService, FounderService>();
 
             builder.Services.AddScoped<IGovernementService,GovernmentService>();
+            builder.Services.AddScoped<INotficationService,NotificationService>();
             #endregion
 
             var app = builder.Build();

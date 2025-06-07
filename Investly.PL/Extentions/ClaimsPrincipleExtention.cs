@@ -1,4 +1,5 @@
 ﻿using Investly.DAL.Entities;
+using Investly.PL.General;
 using System.Security.Claims;
 
 namespace Investly.PL.Extentions
@@ -14,6 +15,19 @@ namespace Investly.PL.Extentions
             }
 
             return userId;
+        }
+        public static int GetUserType(this ClaimsPrincipal user)
+        {
+            var userTypeClaim = user.FindFirst("userType");
+
+            if (userTypeClaim==null||!int.TryParse(userTypeClaim.Value, out int userTypeId))
+            {
+                return 0;
+             
+            }
+
+            return userTypeId;
+
         }
         //public static string GetUserName(this ClaimsPrincipal claimsPrincipal)
         //{
