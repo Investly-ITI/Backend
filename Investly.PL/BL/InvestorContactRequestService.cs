@@ -36,7 +36,7 @@ namespace Investly.PL.BL
             int? pageSize = 10,
             int? investorIdFilter = null,
             int? founderIdFilter = null,
-            ContactRequestStatus? statusFilter = null, // Change parameter type to enum
+            ContactRequestStatus? statusFilter = null,
             string columnOrderBy = null,
             string orderByDirection = Constants.Ascending,
             string searchTerm = null)
@@ -44,12 +44,10 @@ namespace Investly.PL.BL
             pageNumber ??= 1;
             pageSize ??= 10;
 
-            // Convert enum filter to int for database query
             int? statusFilterValue = statusFilter.HasValue ? (int)statusFilter.Value : null;
 
-
             Expression<Func<InvestorContactRequest, bool>> criteria = request =>
-                (request.Status != (int)ContactRequestStatus.Deleted) &&  // First exclude deleted
+                (request.Status != (int)ContactRequestStatus.Deleted) &&
                 (!investorIdFilter.HasValue || request.InvestorId == investorIdFilter) &&
                 (!founderIdFilter.HasValue || request.Business.FounderId == founderIdFilter) &&
                 (!statusFilterValue.HasValue || request.Status == statusFilterValue) &&
@@ -59,8 +57,9 @@ namespace Investly.PL.BL
                  request.Investor.User.LastName.Contains(searchTerm) ||
                  request.Investor.User.Email.Contains(searchTerm));
 
-            // Apply ordering
             Expression<Func<InvestorContactRequest, object>> orderBy = null;
+            string finalOrderByDirection = orderByDirection;
+
             if (!string.IsNullOrEmpty(columnOrderBy))
             {
                 if (columnOrderBy.Equals("Investor Name", StringComparison.OrdinalIgnoreCase))
@@ -84,18 +83,21 @@ namespace Investly.PL.BL
                     orderBy = request => request.Business.Title;
                 }
             }
+            else
+            {
+                orderBy = request => request.CreatedAt;
+                finalOrderByDirection = Constants.Descending;
+            }
 
-            // Get paginated results from repository
             PaginatedResultDto<InvestorContactRequest> tempRes = await _queryService.FindAllAsync(
                 take: pageSize,
                 skip: (pageNumber - 1) * pageSize,
                 criteria: criteria,
                 orderBy: orderBy,
-                orderByDirection: orderByDirection,
+                orderByDirection: finalOrderByDirection,
                 properties: "Investor.User,Business.Founder.User,Business"
             );
 
-            // Map to DTO and return
             PaginatedResultDto<InvestorContactRequestDto> res = new PaginatedResultDto<InvestorContactRequestDto>()
             {
                 Items = _mapper.Map<List<InvestorContactRequestDto>>(tempRes.Items),
